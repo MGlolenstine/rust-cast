@@ -16,7 +16,6 @@ pub mod errors;
 pub mod message_manager;
 mod utils;
 
-use std::borrow::Cow;
 use std::net::TcpStream;
 
 use openssl::ssl::{SslConnector, SslMethod, SslStream, SslVerifyMode};
@@ -55,23 +54,23 @@ pub enum ChannelMessage {
 }
 
 /// Structure that manages connection to a cast device.
-pub struct CastDevice<'a> {
+pub struct CastDevice {
     message_manager: Lrc<MessageManager<SslStream<TcpStream>>>,
 
     /// Channel that manages connection responses/requests.
-    pub connection: ConnectionChannel<'a, SslStream<TcpStream>>,
+    pub connection: ConnectionChannel<SslStream<TcpStream>>,
 
     /// Channel that allows connection to stay alive (via ping-pong requests/responses).
-    pub heartbeat: HeartbeatChannel<'a, SslStream<TcpStream>>,
+    pub heartbeat: HeartbeatChannel<SslStream<TcpStream>>,
 
     /// Channel that manages various media stuff.
-    pub media: MediaChannel<'a, SslStream<TcpStream>>,
+    pub media: MediaChannel<SslStream<TcpStream>>,
 
     /// Channel that manages receiving platform (e.g. Chromecast).
-    pub receiver: ReceiverChannel<'a, SslStream<TcpStream>>,
+    pub receiver: ReceiverChannel<SslStream<TcpStream>>,
 }
 
-impl<'a> CastDevice<'a> {
+impl CastDevice {
     /// Connects to the cast device using host name and port.
     ///
     /// # Examples
@@ -96,9 +95,9 @@ impl<'a> CastDevice<'a> {
     /// # Return value
     ///
     /// Instance of `CastDevice` that allows you to manage connection.
-    pub fn connect<S>(host: S, port: u16) -> Result<CastDevice<'a>, Error>
+    pub fn connect<S>(host: S, port: u16) -> Result<CastDevice, Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let host = host.into();
 
@@ -138,9 +137,9 @@ impl<'a> CastDevice<'a> {
     /// # Return value
     ///
     /// Instance of `CastDevice` that allows you to manage connection.
-    pub fn connect_without_host_verification<S>(host: S, port: u16) -> Result<CastDevice<'a>, Error>
+    pub fn connect_without_host_verification<S>(host: S, port: u16) -> Result<CastDevice, Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let host = host.into();
 
@@ -227,7 +226,7 @@ impl<'a> CastDevice<'a> {
     /// # Return value
     ///
     /// Instance of `CastDevice` that allows you to manage connection.
-    fn connect_to_device(ssl_stream: SslStream<TcpStream>) -> Result<CastDevice<'a>, Error> {
+    fn connect_to_device(ssl_stream: SslStream<TcpStream>) -> Result<CastDevice, Error> {
         let message_manager_rc = Lrc::new(MessageManager::new(ssl_stream));
 
         let heartbeat = HeartbeatChannel::new(

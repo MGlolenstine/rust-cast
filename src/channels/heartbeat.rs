@@ -1,7 +1,4 @@
-use std::{
-    borrow::Cow,
-    io::{Read, Write},
-};
+use std::io::{Read, Write};
 
 use crate::{
     cast::proxies,
@@ -22,16 +19,16 @@ pub enum HeartbeatResponse {
     NotImplemented(String, serde_json::Value),
 }
 
-pub struct HeartbeatChannel<'a, W>
+pub struct HeartbeatChannel<W>
 where
     W: Read + Write,
 {
-    sender: Cow<'a, str>,
-    receiver: Cow<'a, str>,
+    sender: String,
+    receiver: String,
     message_manager: Lrc<MessageManager<W>>,
 }
 
-impl<'a, W> HeartbeatChannel<'a, W>
+impl<W> HeartbeatChannel<W>
 where
     W: Read + Write,
 {
@@ -39,9 +36,9 @@ where
         sender: S,
         receiver: S,
         message_manager: Lrc<MessageManager<W>>,
-    ) -> HeartbeatChannel<'a, W>
+    ) -> HeartbeatChannel<W>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         HeartbeatChannel {
             sender: sender.into(),

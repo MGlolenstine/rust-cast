@@ -213,12 +213,12 @@ pub mod media {
     #[derive(Serialize, Debug)]
     pub struct CustomData {
         #[serde(skip_serializing)]
-        private: (),
+        _private: (),
     }
 
     impl CustomData {
         pub fn new() -> CustomData {
-            CustomData { private: () }
+            CustomData { _private: () }
         }
     }
 
@@ -257,7 +257,7 @@ pub mod media {
         pub request_id: i32,
 
         #[serde(rename = "type")]
-        typ: String,
+        _typ: String,
     }
 
     #[derive(Deserialize, Debug)]
@@ -266,7 +266,7 @@ pub mod media {
         pub request_id: i32,
 
         #[serde(rename = "type")]
-        typ: String,
+        _typ: String,
     }
 
     #[derive(Deserialize, Debug)]
@@ -275,7 +275,7 @@ pub mod media {
         pub request_id: i32,
 
         #[serde(rename = "type")]
-        typ: String,
+        _typ: String,
     }
 
     #[derive(Deserialize, Debug)]
@@ -292,8 +292,6 @@ pub mod media {
 
 /// Proxy classes for the `receiver` channel.
 pub mod receiver {
-    use std::borrow::Cow;
-
     #[derive(Serialize, Debug)]
     pub struct AppLaunchRequest {
         #[serde(rename = "requestId")]
@@ -307,7 +305,7 @@ pub mod receiver {
     }
 
     #[derive(Serialize, Debug)]
-    pub struct AppStopRequest<'a> {
+    pub struct AppStopRequest {
         #[serde(rename = "requestId")]
         pub request_id: i32,
 
@@ -315,7 +313,7 @@ pub mod receiver {
         pub typ: String,
 
         #[serde(rename = "sessionId")]
-        pub session_id: Cow<'a, str>,
+        pub session_id: String,
     }
 
     #[derive(Serialize, Debug)]

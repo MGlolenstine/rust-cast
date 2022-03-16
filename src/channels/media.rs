@@ -1,5 +1,4 @@
 use std::{
-    borrow::Cow,
     io::{Read, Write},
     str::FromStr,
     string::ToString,
@@ -414,21 +413,21 @@ pub enum MediaResponse {
     NotImplemented(String, serde_json::Value),
 }
 
-pub struct MediaChannel<'a, W>
+pub struct MediaChannel<W>
 where
     W: Read + Write,
 {
-    sender: Cow<'a, str>,
+    sender: String,
     message_manager: Lrc<MessageManager<W>>,
 }
 
-impl<'a, W> MediaChannel<'a, W>
+impl<W> MediaChannel<W>
 where
     W: Read + Write,
 {
-    pub fn new<S>(sender: S, message_manager: Lrc<MessageManager<W>>) -> MediaChannel<'a, W>
+    pub fn new<S>(sender: S, message_manager: Lrc<MessageManager<W>>) -> MediaChannel<W>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         MediaChannel {
             sender: sender.into(),
@@ -453,7 +452,7 @@ where
         media_session_id: Option<i32>,
     ) -> Result<Status, Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let request_id = self.message_manager.generate_request_id();
 
@@ -466,7 +465,7 @@ where
         self.message_manager.send(CastMessage {
             namespace: CHANNEL_NAMESPACE.to_string(),
             source: self.sender.to_string(),
-            destination: destination.into().to_string(),
+            destination: destination.into(),
             payload: CastMessagePayload::String(payload),
         })?;
 
@@ -508,7 +507,7 @@ where
     /// Returned `Result` should consist of either `Status` instance or an `Error`.
     pub fn load<S>(&self, destination: S, session_id: S, media: &Media) -> Result<Status, Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let request_id = self.message_manager.generate_request_id();
 
@@ -564,7 +563,7 @@ where
 
         let payload = serde_json::to_string(&proxies::media::MediaRequest {
             request_id,
-            session_id: session_id.into().to_string(),
+            session_id: session_id.into(),
             typ: MESSAGE_TYPE_LOAD.to_string(),
 
             media: proxies::media::Media {
@@ -583,7 +582,7 @@ where
         self.message_manager.send(CastMessage {
             namespace: CHANNEL_NAMESPACE.to_string(),
             source: self.sender.to_string(),
-            destination: destination.into().to_string(),
+            destination: destination.into(),
             payload: CastMessagePayload::String(payload),
         })?;
 
@@ -656,7 +655,7 @@ where
     /// Returned `Result` should consist of either `Status` instance or an `Error`.
     pub fn pause<S>(&self, destination: S, media_session_id: i32) -> Result<StatusEntry, Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let request_id = self.message_manager.generate_request_id();
 
@@ -670,7 +669,7 @@ where
         self.message_manager.send(CastMessage {
             namespace: CHANNEL_NAMESPACE.to_string(),
             source: self.sender.to_string(),
-            destination: destination.into().to_string(),
+            destination: destination.into(),
             payload: CastMessagePayload::String(payload),
         })?;
 
@@ -690,7 +689,7 @@ where
     /// Returned `Result` should consist of either `Status` instance or an `Error`.
     pub fn play<S>(&self, destination: S, media_session_id: i32) -> Result<StatusEntry, Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let request_id = self.message_manager.generate_request_id();
 
@@ -704,7 +703,7 @@ where
         self.message_manager.send(CastMessage {
             namespace: CHANNEL_NAMESPACE.to_string(),
             source: self.sender.to_string(),
-            destination: destination.into().to_string(),
+            destination: destination.into(),
             payload: CastMessagePayload::String(payload),
         })?;
 
@@ -725,7 +724,7 @@ where
     /// Returned `Result` should consist of either `Status` instance or an `Error`.
     pub fn stop<S>(&self, destination: S, media_session_id: i32) -> Result<StatusEntry, Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let request_id = self.message_manager.generate_request_id();
 
@@ -739,7 +738,7 @@ where
         self.message_manager.send(CastMessage {
             namespace: CHANNEL_NAMESPACE.to_string(),
             source: self.sender.to_string(),
-            destination: destination.into().to_string(),
+            destination: destination.into(),
             payload: CastMessagePayload::String(payload),
         })?;
 
@@ -768,7 +767,7 @@ where
         resume_state: Option<ResumeState>,
     ) -> Result<StatusEntry, Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let request_id = self.message_manager.generate_request_id();
 
@@ -784,7 +783,7 @@ where
         self.message_manager.send(CastMessage {
             namespace: CHANNEL_NAMESPACE.to_string(),
             source: self.sender.to_string(),
-            destination: destination.into().to_string(),
+            destination: destination.into(),
             payload: CastMessagePayload::String(payload),
         })?;
 

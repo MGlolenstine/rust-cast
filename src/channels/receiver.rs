@@ -1,5 +1,4 @@
 use std::{
-    borrow::Cow,
     convert::Into,
     io::{Read, Write},
     str::FromStr,
@@ -37,33 +36,33 @@ pub struct Volume {
     pub muted: Option<bool>,
 }
 
-/// This `Into<Volume>` implementation is useful when only volume level is needed.
-impl Into<Volume> for f32 {
-    fn into(self) -> Volume {
+/// This `From<f32>` implementation is useful when only volume level is needed.
+impl From<f32> for Volume {
+    fn from(a: f32) -> Self {
         Volume {
-            level: Some(self),
+            level: Some(a),
             muted: None,
         }
     }
 }
 
-/// This `Into<Volume>` implementation is useful when only mute/unmute state is needed.
-impl Into<Volume> for bool {
-    fn into(self) -> Volume {
+/// This `From<bool>` implementation is useful when only mute/unmute state is needed.
+impl From<bool> for Volume{
+    fn from(a: bool) -> Self {
         Volume {
             level: None,
-            muted: Some(self),
+            muted: Some(a),
         }
     }
-}
+} 
 
 /// This `Into<Volume>` implementation is useful when both volume level and mute/unmute state are
 /// needed.
-impl Into<Volume> for (f32, bool) {
-    fn into(self) -> Volume {
+impl From<(f32, bool)> for Volume{
+    fn from(a: (f32, bool)) -> Volume {
         Volume {
-            level: Some(self.0),
-            muted: Some(self.1),
+            level: Some(a.0),
+            muted: Some(a.1),
         }
     }
 }
@@ -166,16 +165,16 @@ impl ToString for CastDeviceApp {
     }
 }
 
-pub struct ReceiverChannel<'a, W>
+pub struct ReceiverChannel<W>
 where
     W: Write + Read,
 {
-    sender: Cow<'a, str>,
-    receiver: Cow<'a, str>,
+    sender: String,
+    receiver: String,
     message_manager: Lrc<MessageManager<W>>,
 }
 
-impl<'a, W> ReceiverChannel<'a, W>
+impl<W> ReceiverChannel<W>
 where
     W: Write + Read,
 {
@@ -183,9 +182,9 @@ where
         sender: S,
         receiver: S,
         message_manager: Lrc<MessageManager<W>>,
-    ) -> ReceiverChannel<'a, W>
+    ) -> ReceiverChannel<W>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         ReceiverChannel {
             sender: sender.into(),
@@ -259,7 +258,7 @@ where
     /// * `session_id` - identifier of the active application session from `Application` instance.
     pub fn stop_app<S>(&self, session_id: S) -> Result<(), Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let request_id = self.message_manager.generate_request_id();
 

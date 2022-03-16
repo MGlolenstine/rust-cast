@@ -1,7 +1,4 @@
-use std::{
-    borrow::Cow,
-    io::{Read, Write},
-};
+use std::io::{Read, Write};
 
 use crate::{
     cast::proxies,
@@ -23,21 +20,21 @@ pub enum ConnectionResponse {
     NotImplemented(String, serde_json::Value),
 }
 
-pub struct ConnectionChannel<'a, W>
+pub struct ConnectionChannel<W>
 where
     W: Read + Write,
 {
-    sender: Cow<'a, str>,
+    sender: String,
     message_manager: Lrc<MessageManager<W>>,
 }
 
-impl<'a, W> ConnectionChannel<'a, W>
+impl<W> ConnectionChannel<W>
 where
     W: Read + Write,
 {
-    pub fn new<S>(sender: S, message_manager: Lrc<MessageManager<W>>) -> ConnectionChannel<'a, W>
+    pub fn new<S>(sender: S, message_manager: Lrc<MessageManager<W>>) -> ConnectionChannel<W>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         ConnectionChannel {
             sender: sender.into(),
@@ -47,7 +44,7 @@ where
 
     pub fn connect<S>(&self, destination: S) -> Result<(), Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let payload = serde_json::to_string(&proxies::connection::ConnectionRequest {
             typ: MESSAGE_TYPE_CONNECT.to_string(),
@@ -57,14 +54,14 @@ where
         self.message_manager.send(CastMessage {
             namespace: CHANNEL_NAMESPACE.to_string(),
             source: self.sender.to_string(),
-            destination: destination.into().to_string(),
+            destination: destination.into(),
             payload: CastMessagePayload::String(payload),
         })
     }
 
     pub fn disconnect<S>(&self, destination: S) -> Result<(), Error>
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<String>,
     {
         let payload = serde_json::to_string(&proxies::connection::ConnectionRequest {
             typ: MESSAGE_TYPE_CLOSE.to_string(),
@@ -74,7 +71,7 @@ where
         self.message_manager.send(CastMessage {
             namespace: CHANNEL_NAMESPACE.to_string(),
             source: self.sender.to_string(),
-            destination: destination.into().to_string(),
+            destination: destination.into(),
             payload: CastMessagePayload::String(payload),
         })
     }
